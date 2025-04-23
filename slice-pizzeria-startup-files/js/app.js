@@ -1,20 +1,37 @@
-const main = document.querySelector(".main-wrapper");
+let total = 0;
+let prixMax;
+
+let data;
+addEventListener("DOMContentLoaded", async () => {
+	const result = await fetch("http://51.38.232.174:3001/products", {
+		method: "GET",
+	});
+	data = await result.json();
+
+	console.log(data);
+
+	ordre();
+});
+
 const sup = document.querySelector(".pizzas-wrapper");
-const sup2 = document.querySelector(".basket-aside");
+const section = document.querySelector("section");
 
 sup.remove();
-sup2.remove();
 
-function page() {
-	let info = document.createElement("div");
-	info.classList.add("pizza-wrapper");
+let info = document.createElement("div");
+info.classList.add("pizzas-wrapper");
 
+section.appendChild(info);
+
+let elPrixNomb = document.getElementById("itemCount");
+
+function page(image, nom, prix, i) {
 	let div = document.createElement("div");
 	div.classList.add("pizza-item");
 
 	let img = document.createElement("img");
 	img.classList.add("pizza-picture");
-	img.src = "https://cdn.dummyjson.com/recipe-images/1.webp";
+	img.src = image;
 
 	let btn = document.createElement("span");
 	btn.classList.add("add-to-cart-btn");
@@ -29,30 +46,13 @@ function page() {
 	ul.classList.add("pizza-infos");
 
 	let li1 = document.createElement("li");
-	li1.textContent = "test";
+	li1.textContent = nom;
 	li1.classList.add("pizza-name");
 
 	let li2 = document.createElement("li");
-	li2.textContent = "test";
+	li2.textContent = "$" + prix;
 	li2.classList.add("pizza-price");
 
-	let aside = document.createElement("aside");
-	aside.classList.add("basket-aside");
-
-	let h2 = document.createElement("h2");
-	h2.textContent = "Votre panier (0)";
-
-	let empty = document.createElement("div");
-	empty.classList.add("empty-basket");
-
-	let pizza = document.createElement("img");
-	pizza.src = "../images/pizza.png";
-
-	let pPizza = document.createElement("p");
-	pPizza.textContent = "Votre panier est vide...";
-
-	main.appendChild(info);
-	info.appendChild(div);
 	div.appendChild(img);
 	div.appendChild(btn);
 	btn.appendChild(icon);
@@ -60,26 +60,159 @@ function page() {
 	div.appendChild(ul);
 	ul.appendChild(li1);
 	ul.appendChild(li2);
-	main.appendChild(aside);
-	aside.appendChild(h2);
-	aside.appendChild(empty);
-	empty.appendChild(pizza);
-	empty.appendChild(pPizza);
+
+	btn.addEventListener("click", () => {
+		let item = Array.from(document.querySelectorAll(".basket-product-item"));
+		const el = item.find((e) => {
+			const elName = e.querySelector(".basket-product-item-name").innerHTML;
+			return elName == nom;
+		});
+
+		if (el) {
+			let elPrix = el.querySelector(".basket-product-details-total-price");
+			let elNomb = el.querySelector(".basket-product-details-quantity");
+			elNomb.innerHTML = 1 + Number(elNomb.innerHTML.replace("x", "")) + "x";
+			elPrix.innerHTML =
+				"$" + (prix + Number(elPrix.innerHTML.replace("$", "")));
+			elPrixNomb.innerHTML = Number(elNomb.innerHTML.replace("x", ""));
+		} else {
+			const choix = commende(data[i].name, 1, data[i].price, data[i].price);
+			ul1.appendChild(choix);
+			item.push(choix);
+		}
+		const elItem = item.reduce((a, e) => {
+			let elNomb = e.querySelector(".basket-product-details-quantity");
+
+			return a + Number(elNomb.innerHTML.replace("x", ""));
+		}, 0);
+		elPrixNomb.innerHTML = elItem;
+
+		const elTotal = item.reduce((a, e) => {
+			let elPrix = e.querySelector(".basket-product-details-total-price");
+
+			return a + Number(elPrix.innerHTML.replace("$", ""));
+		}, 0);
+		total = "$" + elTotal;
+		prixMax.innerHTML = total;
+	});
+
+	return div;
 }
 
 async function ordre() {
-	const result = await fetch("http://51.38.232.174:3001/products", {
-		method: "GET",
-	});
-	const data = await result.json();
-
-	console.log(data);
-
 	for (let i = 0; i < data.length; i++) {
-		li1.textContent = data[i].name;
-		li2.textContent = "$" + data[i].price;
+		const resultPizza = page(data[i].image, data[i].name, data[i].price, i);
+		info.appendChild(resultPizza);
 	}
 }
 
-page();
-ordre();
+const sup3 = document.querySelector(".baskets-with-pizza");
+const aside = document.querySelector(".basket-aside");
+
+sup3.remove();
+
+let baskets = document.createElement("div");
+baskets.classList.add("baskets-with-pizza");
+
+aside.appendChild(baskets);
+
+let ul1 = document.createElement("ul");
+ul1.classList.add("basket-products");
+
+baskets.appendChild(ul1);
+
+function commende(nom, nombre, lePrix, prix) {
+	let li = document.createElement("li");
+	li.classList.add("basket-product-item");
+
+	let span = document.createElement("span");
+	span.classList.add("basket-product-item-name");
+	span.textContent = nom;
+
+	let span2 = document.createElement("span");
+	span2.classList.add("basket-product-details");
+
+	let span3 = document.createElement("span");
+	span3.classList.add("basket-product-details-quantity");
+	span3.textContent = nombre + "x";
+
+	let span4 = document.createElement("span");
+	span4.classList.add("basket-product-details-unit-price");
+	span4.textContent = "@ $" + lePrix;
+
+	let span5 = document.createElement("span");
+	span5.classList.add("basket-product-details-total-price");
+	span5.textContent = "$" + prix;
+
+	let image = document.createElement("img");
+	image.classList.add("basket-product-remove-icon");
+	image.src = "../images/remove-icon.svg";
+
+	li.appendChild(span);
+	li.appendChild(span2);
+	span2.appendChild(span3);
+	span2.appendChild(span4);
+	span2.appendChild(span5);
+	li.appendChild(image);
+
+	image.addEventListener("click", () => {
+		li.remove();
+
+		let item = Array.from(document.querySelectorAll(".basket-product-item"));
+
+		const elItem = item.reduce((a, e) => {
+			let elNomb = e.querySelector(".basket-product-details-quantity");
+
+			return a + Number(elNomb.innerHTML.replace("x", ""));
+		}, 0);
+		elPrixNomb.innerHTML = elItem;
+
+		const elTotal = item.reduce((a, e) => {
+			let elPrix = e.querySelector(".basket-product-details-total-price");
+
+			return a + Number(elPrix.innerHTML.replace("$", ""));
+		}, 0);
+		total = "$" + elTotal;
+		prixMax.innerHTML = total;
+	});
+
+	return li;
+}
+
+function valide() {
+	let p = document.createElement("p");
+	p.classList.add("total-order");
+
+	let span6 = document.createElement("span");
+	span6.classList.add("total-order-title");
+	span6.textContent = "Order Total";
+
+	let span7 = document.createElement("span");
+	span7.classList.add("total-order-price");
+	span7.textContent = total;
+
+	let p2 = document.createElement("p");
+	p2.appendChild(document.createTextNode("This is a"));
+	p2.classList.add("delivery-info");
+
+	let span8 = document.createElement("span");
+	span8.appendChild(document.createTextNode(" carbon neutral "));
+
+	baskets.appendChild(p2);
+	p2.appendChild(span8);
+
+	p2.appendChild(document.createTextNode("delivery"));
+
+	let a = document.createElement("a");
+	a.classList.add("confirm-order-btn");
+	a.textContent = "Confirm order";
+	a.href = "#";
+
+	baskets.appendChild(p);
+	p.appendChild(span6);
+	p.appendChild(span7);
+	baskets.appendChild(a);
+
+	prixMax = span7;
+}
+valide();
