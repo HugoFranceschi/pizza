@@ -1,6 +1,114 @@
 let total = 0;
 let prixMax;
 
+let body = document.querySelector("body");
+
+function reusit() {
+	let nomb = document.querySelectorAll(".basket-aside li");
+
+	let div = document.createElement("div");
+	div.classList.add("order-modal-wrapper");
+
+	let div1 = document.createElement("div");
+	div1.classList.add("order-modal");
+
+	let image = document.createElement("img");
+	image.src = "../images/carbon_checkmark-outline.svg";
+
+	let p3 = document.createElement("p");
+	p3.classList.add("order-modal-title");
+	p3.textContent = "Order Confirmed";
+
+	let p4 = document.createElement("p");
+	p4.classList.add("order-modal-subtitle");
+	p4.textContent = "We hope you enjoy your food!";
+
+	let ul = document.createElement("ul");
+	ul.classList.add("order-detail");
+
+	for (let i = 0; i < nomb.length; i++) {
+		let imageId = "";
+		for (let y = 0; y < data.length; y++) {
+			if (data[y].id == nomb[i].getAttribute("id")) {
+				imageId = data[y].image;
+			}
+		}
+
+		let Name = nomb[i].querySelector(".basket-product-item-name");
+		let Nombre = nomb[i].querySelector(".basket-product-details-quantity");
+		let LePrix = nomb[i].querySelector(".basket-product-details-unit-price");
+		let Prix = nomb[i].querySelector(".basket-product-details-total-price");
+		console.log(nomb[i].getAttribute("id"));
+
+		let li = document.createElement("li");
+		li.classList.add("order-detail-product-item");
+
+		let image2 = document.createElement("img");
+		image2.src = imageId;
+		image2.classList.add("order-detail-product-image");
+
+		let span9 = document.createElement("span");
+		span9.classList.add("order-detail-product-name");
+		span9.textContent = Name.innerHTML;
+
+		let span10 = document.createElement("span");
+		span10.classList.add("order-detail-product-quantity");
+		span10.textContent = Nombre.innerHTML;
+
+		let span11 = document.createElement("span");
+		span11.classList.add("order-detail-product-unit-price");
+		span11.textContent = LePrix.innerHTML;
+
+		let span12 = document.createElement("span");
+		span12.classList.add("order-detail-product-total-price");
+		span12.textContent = Prix.innerHTML;
+
+		ul.appendChild(li);
+		li.appendChild(image2);
+		li.appendChild(span9);
+		li.appendChild(span10);
+		li.appendChild(span11);
+		li.appendChild(span12);
+	}
+	let Total = document.querySelector(".total-order-price");
+
+	let li2 = document.createElement("li");
+	li2.classList.add("order-detail-total-price");
+
+	let span13 = document.createElement("span");
+	span13.classList.add("total-order-title");
+	span13.textContent = "Order total";
+
+	let span14 = document.createElement("span");
+	span14.classList.add("total-order-price");
+	span14.textContent = Total.innerHTML;
+
+	let a = document.createElement("a");
+	a.classList.add("new-order-btn");
+	a.textContent = "Start new order";
+	a.href = "#";
+
+	a.addEventListener("click", () => {
+		location.reload();
+	});
+
+	div.appendChild(div1);
+	div1.appendChild(image);
+	div1.appendChild(p3);
+	div1.appendChild(p4);
+	div1.appendChild(ul);
+	ul.appendChild(li2);
+	li2.appendChild(span13);
+	li2.appendChild(span14);
+	div1.appendChild(a);
+
+	body.appendChild(div);
+
+	console.log(div);
+
+	return div;
+}
+
 let data;
 addEventListener("DOMContentLoaded", async () => {
 	const result = await fetch("http://51.38.232.174:3001/products", {
@@ -238,12 +346,9 @@ function valide() {
 
 		console.log(data1);
 
-		let nomb = document.querySelectorAll(".basket-aside li");
-		for (let i = 0; i < nomb.length; i++) {
-			console.log(nomb[i].getAttribute("id"));
-		}
+		reusit();
 
-		console.log(nomb.length);
+		let nomb = document.querySelectorAll(".basket-aside li");
 
 		let ordeur = [];
 		for (let i = 0; i < nomb.length; i++) {
@@ -268,62 +373,11 @@ function valide() {
 				products: ordeur,
 			}),
 		});
-		function reusit(nom, nombre, lePrix, prix, img) {
-			let div = document.createElement("div");
-			div.classList.add("order-modal-wrapper");
+		data1 = await result2.json();
+		console.log(data1);
+		console.log(result2.status);
 
-			let div1 = document.createElement("div");
-			div1.classList.add("order-modal");
-
-			let image = document.createElement("img");
-			image.src = "../images/carbon_checkmark-outline.svg";
-
-			let p = document.createElement("p");
-			p.classList.add("order-modal-title");
-			p.textContent = "Order Confirmed";
-
-			let p1 = document.createElement("p");
-			p1.classList.add("order-modal-subtitle");
-			p1.textContent = "We hope you enjoy your food!";
-
-			let ul = document.createElement("ul");
-			ul.classList.add("order-detail");
-
-			let li = document.createElement("li");
-			li.classList.add("order-detail-product-item");
-
-			let image1 = document.createElement("img");
-			image1.classList.add("order-detail-product-image");
-			image1.src = img;
-
-			let span1 = document.createElement("span");
-			span1.textContent = nom;
-			span1.classList.add("order-detail-product-name");
-
-			let span2 = document.createElement("span");
-			span2.textContent = nombre;
-			span1.classList.add("order-detail-product-quantity");
-
-			let span3 = document.createElement("span");
-			span3.textContent = lePrix;
-			span1.classList.add("order-detail-product-unit-price");
-
-			let span4 = document.createElement("span");
-			span4.textContent = prix;
-			span1.classList.add("order-detail-product-total-price");
-
-			div.appendChild(div1);
-			div1.appendChild(image);
-			div1.appendChild(p);
-			div1.appendChild(p);
-			div1.appendChild(ul);
-			ul.appendChild(li);
-			li.appendChild(image1);
-			li.appendChild(span1);
-			li.appendChild(span2);
-			li.appendChild(span3);
-			li.appendChild(span4);
-		}
+		console.log("ok");
 	});
 }
 valide();
